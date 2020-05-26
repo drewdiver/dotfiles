@@ -1,0 +1,52 @@
+export PATH=.:$PATH # avoid prefixing binaries with './'
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+xman () { 
+	open x-man-page://$@ ;
+}
+
+# https://gist.github.com/pablete - thanks!
+function tabc () {
+	NAME=$1
+	if [ -z "$NAME" ]
+	then
+		NAME="Default"
+	fi
+	echo -e "\033]50;SetProfile=$NAME\a"
+}
+
+# color mosh and ssh sessions
+function colormosh () {
+	tabc SSH
+	mosh $*
+	tabc
+}
+
+function colorssh () {
+	tabc SSH
+	ssh $*
+	tabc
+}
+
+autoload -Uz compinit promptinit
+compinit
+promptinit
+
+setopt COMPLETE_ALIASES # add my aliases to auto-complete
+setopt NO_CASE_GLOB # set case-insensitive globbing
+setopt AUTO_CD # if I forget the full path, put me in
+setopt ALWAYS_TO_END # move cursor to end of word after auto complete
+setopt HIST_IGNORE_SPACE # prefix a command with a space to keep it out of history.
+setopt HIST_IGNORE_DUPS # I don't need to see that I ran 'ls' a million times
+setopt CORRECT # prompt to fix my typos
+
+alias ls='ls -la'
+alias vim='nvim'
+alias tidy='tidy -quiet --drop-empty-elements no'
+alias ssh='colorssh'
+alias mosh='colormosh'
+
+PROMPT='%f%B%2~%b [%(?.%F{green}✓.%F{red}✗ %?)%f] %(!.#.>) '
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

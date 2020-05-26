@@ -1,0 +1,138 @@
+#!/bin/echo Warning: this library should be sourced!
+#===============================================================================
+#
+#          FILE: stdlib
+#
+#         USAGE: source stdlib
+#
+#   DESCRIPTION: An opinionated Shell library for macOS systems.
+#
+#       OPTIONS: ---
+#  REQUIREMENTS: ---
+#          BUGS: ---
+#         NOTES: Mostly tailored to macOS
+#        AUTHOR: Drew Diver
+#  ORGANIZATION: ---
+#       CREATED: 04/16/20 10:24
+#      REVISION:  ---
+#===============================================================================
+
+#===============================================================================
+# SANITY CHECK
+#===============================================================================
+
+if [[ "$(uname -s)" -ne "Darwin" ]]
+then
+	echo "Warning: This library is targeted towards macOS, usage with other OSes may vary..."
+fi
+
+#===============================================================================
+# GLOBAL DECLARATIONS
+#===============================================================================
+
+JAMF="/usr/local/bin/jamf"
+JH="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
+BRANDING_ICON="/Library/Management/Logos/schibsted_transparency.png"
+
+
+#===============================================================================
+# FUNCTIONS
+#===============================================================================
+
+alert() {
+	# usage: alert <$?>
+	# Example:
+	#	$> DEBUG=1
+	#	$> ping -c 3 0.0.0.0 >/dev/null 2&>1
+	#	$> alert ping
+	# 	Warn: ping failed with a return code of 2.
+	
+  	local RET_CODE=$?
+
+  	if [ -z "$DEBUG" ] || [ "$DEBUG" -eq 0 ]
+  	then
+    	return
+  	fi
+
+  	if [ "$RET_CODE" -ne 0 ]
+  	then
+    	echo "Warn: $* failed with a return code of $RET_CODE." >&2
+		[ "$DEBUG" -gt 9 ] && exit "$RET_CODE"
+		[ "$STEP_THROUGH" = 1 ] && {
+      		echo "Press [Enter] to continue" >&2; read x
+    	}
+  	fi
+
+	[ "$STEP_THROUGH" = 2 ] && {
+		echo "Press [Enter] to continue" >&2; read x
+	}
+}
+
+# Check if we can ping a specified host
+is_alive () {
+	local HOST=$1
+	
+	/sbin/ping -c 3 $HOST >/dev/null 2>&1
+	if [ $? -eq 0 ]
+	then
+		return 0
+	else
+		return 1
+	fi
+}
+
+# Check if we have a Kerberos ticket
+kstatus ()
+{
+  	klist &>/dev/null && return 0 || return 1
+}
+
+# Caffeinate and set CPID to the process ID which we can later kill
+caffeine ()
+{
+ 	/usr/bin/caffeinate -disu &
+	CPID="$!"
+}
+
+# Check if a command is available
+in_path ()
+{
+	CMD="$1"
+	if command -v $CMD >/dev/null 2>&1 && return 0 || return 1
+}
+
+# Check if file exists
+file_exists ()
+{
+	FILE="$1"
+	[[ -f "$FILE" ]] && return 0 || return 1
+}
+
+# Check if directory exists
+dir_exists ()
+{
+	DIR="$1"
+	[[ -d "$DIR" ]] && return 0 || return 1
+}
+
+# Check if a share is mounted
+share_mounted ()
+{
+	SHARE="$1"
+	mount | grep -qw "$SHARE" && return 0 || return 1
+}
+
+# Quick call to jamfHelper
+jamf_helper ()
+{
+	TITLE="$1"
+  	DESC="$2"
+
+  	"$JH" -title "$TITLE" \
+        	-description "$DESC" \
+        	-windowType hud \
+        	-icon "$BRANDING_ICON" \
+        	-iconSize 100 \
+        	-button1 "OK" \
+        	-defaultButton 1
+}
