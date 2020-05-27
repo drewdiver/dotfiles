@@ -1,4 +1,4 @@
-cowsay -f satanic "~/.quotes"
+cowsay -f satanic "$(sort --random-sort ~/.quotes | head -n 1)"
 
 export PATH=.:$PATH # avoid prefixing binaries with './'
 export LANG="en_US.UTF-8"
