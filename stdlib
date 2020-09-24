@@ -32,7 +32,7 @@ fi
 
 JAMF="/usr/local/bin/jamf"
 JH="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
-BRANDING_ICON="/Library/Management/Logos/schibsted_transparency.png"
+BRANDING_ICON="/path/to/image.file"
 
 
 #===============================================================================
