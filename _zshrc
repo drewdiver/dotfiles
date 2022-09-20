@@ -1,0 +1,25 @@
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+dash () {
+	open dash://$@ ;
+}
+
+xman () {
+	open x-man-page://$@ ;
+}
+
+autoload -Uz compinit promptinit
+setopt COMPLETE_ALIASES # add my aliases to auto-complete
+setopt NO_CASE_GLOB # set case-insensitive globbing
+setopt AUTO_CD # if I forget the full path, put me in
+setopt ALWAYS_TO_END # move cursor to end of word after auto complete
+setopt HIST_IGNORE_SPACE # prefix a command with a space to keep it out of history.
+setopt HIST_IGNORE_DUPS # I don't need to see that I ran 'ls' a million times
+setopt CORRECT # prompt to fix my typos
+unset HISTFILE SAVEHIST
+
+alias la='ls -laG'
+alias tidy='tidy -quiet --drop-empty-elements no'
+
+PROMPT='%f%B%2~%b [%(?.%F{green}✓.%F{red}✗ %?)%f] %(!.#.>) '
